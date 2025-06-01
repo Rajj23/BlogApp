@@ -1,11 +1,13 @@
 package com.aspen.BlogApp.ServiceImp;
 
-import com.aspen.BlogApp.dto.UserDto;
+import com.aspen.BlogApp.dto.UserRequestDto;
+import com.aspen.BlogApp.dto.UserResponseDto;
 import com.aspen.BlogApp.model.User;
 import com.aspen.BlogApp.repo.UserRepo;
 import com.aspen.BlogApp.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,38 +19,41 @@ public class UserServImp implements UserService{
     @Autowired
     private UserRepo userRepo;
 
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
     @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public UserDto createUser(UserDto userDto){
+    public UserResponseDto createUser(UserRequestDto userDto){
+        userDto.setPassword(encoder.encode(userDto.getPassword()));
         User user = DtoToUser(userDto);
         User saveUser = userRepo.save(user);
         return this.userToDto(saveUser);
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto,Integer userId){
+    public UserResponseDto updateUser(UserRequestDto userDto, Integer userId){
         User user = this.userRepo.findById(userId).orElseThrow(()-> new RuntimeException("User not found with id: "+userId));
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         user.setAbout(userDto.getAbout());
 
         User user1 = userRepo.save(user);
-        UserDto userDto1 = userToDto(user1);
-        return userDto1;
+        UserResponseDto userResponseDto1 = userToDto(user1);
+        return userResponseDto1;
     }
 
     @Override
-    public List<UserDto> getAllUser(){
+    public List<UserResponseDto> getAllUser(){
         List<User> users = userRepo.findAll();
-        List<UserDto> userDto1 = users.stream().map(user -> this.userToDto(user)).collect(Collectors.toList());
-        return userDto1;
+        List<UserResponseDto> userResponseDto1 = users.stream().map(user -> this.userToDto(user)).collect(Collectors.toList());
+        return userResponseDto1;
     }
 
 
     @Override
-    public UserDto getUserById(int userId) {
+    public UserResponseDto getUserById(int userId) {
         User user = this.userRepo.findById(userId).orElseThrow(()-> new RuntimeException("User not found with id: "+userId));
 
         return this.userToDto(user);
@@ -59,23 +64,24 @@ public class UserServImp implements UserService{
         this.userRepo.delete(user);
     }
 
-    public UserDto userToDto(User user){
-        UserDto userDto = this.modelMapper.map(user,UserDto.class);
+    public UserResponseDto userToDto(User user){
+        UserResponseDto userResponseDto = this.modelMapper.map(user, UserResponseDto.class);
 
-        userDto.setId(user.getId());
-        userDto.setName(user.getName());
-        userDto.setEmail(user.getEmail());
-        userDto.setAbout(user.getAbout());
-        return userDto;
+        userResponseDto.setId(user.getId());
+        userResponseDto.setName(user.getName());
+        userResponseDto.setEmail(user.getEmail());
+        userResponseDto.setAbout(user.getAbout());
+        return userResponseDto;
     }
 
 
-    public  User DtoToUser(UserDto userDto){
-        User user = this.modelMapper.map(userDto,User.class);
-        user.setId(userDto.getId());
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        user.setAbout(userDto.getAbout());
+    public  User DtoToUser(UserRequestDto userResponseDto){
+        User user = new User();
+        user.setId(userResponseDto.getId());
+        user.setName(userResponseDto.getName());
+        user.setEmail(userResponseDto.getEmail());
+        user.setPassword(userResponseDto.getPassword());
+        user.setAbout(userResponseDto.getAbout());
         return user;
     }
 

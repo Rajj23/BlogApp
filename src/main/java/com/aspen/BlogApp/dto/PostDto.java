@@ -14,7 +14,7 @@ public class PostDto {
     private String imageName;
     private Date uploadDate;
     private CategoryDto category;
-    private UserDto user;
+    private UserResponseDto user;
     private Set<CommentDto> comments = new HashSet<>();
 
 }

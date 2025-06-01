@@ -3,7 +3,7 @@ package com.aspen.BlogApp.dto;
 import lombok.Data;
 
 @Data
-public class UserDto {
+public class UserResponseDto {
 
     private int id;
     private String name;

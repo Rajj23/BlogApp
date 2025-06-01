@@ -1,15 +1,16 @@
 package com.aspen.BlogApp.service;
 
-import com.aspen.BlogApp.dto.UserDto;
+import com.aspen.BlogApp.dto.UserRequestDto;
+import com.aspen.BlogApp.dto.UserResponseDto;
 
 import java.util.List;
 
 public interface UserService {
 
-    UserDto createUser(UserDto user);
-    UserDto updateUser(UserDto user,Integer userId);
-    UserDto getUserById(int userId);
-    List<UserDto> getAllUser();
+    UserResponseDto createUser(UserRequestDto user);
+    UserResponseDto updateUser(UserRequestDto user, Integer userId);
+    UserResponseDto getUserById(int userId);
+    List<UserResponseDto> getAllUser();
     void deleteUser(int userId);
 
 }
